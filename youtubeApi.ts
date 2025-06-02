@@ -65,6 +65,35 @@ const isShortVideo = (durationSeconds: number): boolean => {
   return durationSeconds < 60;
 };
 
+// Helper function to assign topics based on keywords in title
+function assignTopics(title: string): string[] {
+  const titleLower = title.toLowerCase();
+  const assignedTopics: string[] = [];
+  const DISC_GOLF_TOPICS: Record<string, string[]> = {
+    'putting': ['putt', 'putting', 'putter', 'confidence', 'straddle', 'turbo'],
+    'driving': ['drive', 'driving', 'distance', 'power', 'long', 'max', 'distance'],
+    'forehand': ['forehand', 'sidearm', 'flick'],
+    'backhand': ['backhand', 'form', 'technique', 'throw', 'throwing'],
+    'approach': ['approach', 'upshot', 'shot', 'shots'],
+    'grip': ['grip', 'hand', 'finger', 'hold'],
+    'beginner': ['beginner', 'basic', 'basics', 'start', 'first'],
+    'advanced': ['advanced', 'pro', 'professional', 'expert', 'training', 'camp'],
+    'angle': ['angle', 'angles', 'anhyzer', 'hyzer', 'flat', 'control'],
+    'specialty': ['roller', 'overhead', 'thumber', 'tomahawk', '360'],
+    'mindset': ['mindset', 'mental', 'confidence', 'strategy', 'game'],
+    'equipment': ['disc', 'discs', 'equipment', 'bag', 'gear', 'choosing']
+  };
+  for (const [topic, keywords] of Object.entries(DISC_GOLF_TOPICS)) {
+    if (keywords.some(keyword => titleLower.includes(keyword))) {
+      assignedTopics.push(topic);
+    }
+  }
+  if (assignedTopics.length === 0) {
+    assignedTopics.push('general');
+  }
+  return assignedTopics;
+}
+
 // Fetch videos from YouTube API
 export const fetchYouTubeVideos = async (): Promise<VideoData[]> => {
   try {
@@ -112,6 +141,7 @@ export const fetchYouTubeVideos = async (): Promise<VideoData[]> => {
         const viewCount = parseInt(videoDetails.statistics.viewCount || '0');
         const likeCount = videoDetails.statistics.likeCount ? parseInt(videoDetails.statistics.likeCount) : undefined;
         const isShort = isShortVideo(durationSeconds);
+        const topics = assignTopics(searchItem.snippet.title);
         return {
           id: videoId,
           title: searchItem.snippet.title,
@@ -122,7 +152,8 @@ export const fetchYouTubeVideos = async (): Promise<VideoData[]> => {
           viewCount,
           isShort,
           thumbnailUrl: searchItem.snippet.thumbnails.medium.url,
-          likeCount
+          likeCount,
+          topics
         };
       }).filter(Boolean) as VideoData[];
 
@@ -192,6 +223,7 @@ export const fetchMoreYouTubeVideos = async (pageToken: string): Promise<{ video
       const viewCount = parseInt(videoDetails.statistics.viewCount || '0');
       const likeCount = videoDetails.statistics.likeCount ? parseInt(videoDetails.statistics.likeCount) : undefined;
       const isShort = isShortVideo(durationSeconds);
+      const topics = assignTopics(searchItem.snippet.title);
       
       return {
         id: videoId,
@@ -203,7 +235,8 @@ export const fetchMoreYouTubeVideos = async (pageToken: string): Promise<{ video
         viewCount,
         isShort,
         thumbnailUrl: searchItem.snippet.thumbnails.medium.url,
-        likeCount
+        likeCount,
+        topics
       };
     }).filter(Boolean) as VideoData[];
     
