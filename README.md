@@ -1,2 +1,0 @@
-# dg-lessons-app
-
