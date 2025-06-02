@@ -6,12 +6,11 @@ export function filterVideos(videos: VideoData[], filters: FilterOptions) {
   return originalFilterVideos(videos, filters).filter(video => {
     // Topic filter
     if (filters.topics && filters.topics.length > 0) {
-      // If video has no topics or none of the selected topics match, filter it out
-      if (!video.topics || !video.topics.some(topic => filters.topics.includes(topic))) {
+      // Defensive: ensure video.topics is always an array
+      if (!Array.isArray(video.topics) || !video.topics.some(topic => filters.topics.includes(topic))) {
         return false;
       }
     }
-    
     return true;
   });
 }
