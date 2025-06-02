@@ -12,6 +12,8 @@ interface VideoGridProps {
   videos: VideoData[];
 }
 
+const VIDEOS_PER_PAGE = 24;
+
 export function VideoGrid({ videos }: VideoGridProps) {
   const [selectedVideo, setSelectedVideo] = useState<VideoData | null>(null);
   const [filters, setFilters] = useState<FilterOptions>({
@@ -28,12 +30,14 @@ export function VideoGrid({ videos }: VideoGridProps) {
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [nextPageToken, setNextPageToken] = useState<string | null>(null);
   const [allVideos, setAllVideos] = useState<VideoData[]>(videos);
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   useEffect(() => {
     // Apply filters and sorting
     let result = filterVideos(allVideos, filters);
     result = sortVideos(result, sortBy, sortDirection);
     setFilteredVideos(result);
+    setCurrentPage(1); // Reset to first page when filters/sort change
   }, [allVideos, filters, sortBy, sortDirection]);
 
   useEffect(() => {
@@ -50,11 +54,9 @@ export function VideoGrid({ videos }: VideoGridProps) {
 
   const loadMoreVideos = async () => {
     if (!nextPageToken || loadingMore) return;
-    
     try {
       setLoadingMore(true);
       const { videos: moreVideos, nextPageToken: newToken } = await fetchMoreYouTubeVideos(nextPageToken);
-      
       setAllVideos(prev => [...prev, ...moreVideos]);
       setNextPageToken(newToken);
     } catch (error) {
@@ -62,6 +64,20 @@ export function VideoGrid({ videos }: VideoGridProps) {
     } finally {
       setLoadingMore(false);
     }
+  };
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredVideos.length / VIDEOS_PER_PAGE);
+  const paginatedVideos = filteredVideos.slice(
+    (currentPage - 1) * VIDEOS_PER_PAGE,
+    currentPage * VIDEOS_PER_PAGE
+  );
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
   return (
@@ -86,7 +102,7 @@ export function VideoGrid({ videos }: VideoGridProps) {
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredVideos.map((video) => (
+          {paginatedVideos.map((video) => (
             <VideoCard
               key={video.id}
               video={video}
@@ -113,7 +129,31 @@ export function VideoGrid({ videos }: VideoGridProps) {
             </button>
           </div>
         )}
-        
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="mt-8 flex justify-center items-center gap-4">
+            <button
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              className="px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md disabled:opacity-50"
+            >
+              Previous Page
+            </button>
+            <span className="text-lg font-semibold">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md disabled:opacity-50"
+            >
+              Next Page
+            </button>
+          </div>
+        )}
+
+        {/* Load More from API if available */}
         {nextPageToken && filteredVideos.length > 0 && (
           <div className="mt-8 text-center">
             <button

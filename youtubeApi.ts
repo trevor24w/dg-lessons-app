@@ -65,16 +65,16 @@ const isShortVideo = (durationSeconds: number): boolean => {
   return durationSeconds < 60;
 };
 
-// Helper function to assign topics based on keywords in title
 function assignTopics(title: string): string[] {
   const titleLower = title.toLowerCase();
   const assignedTopics: string[] = [];
   const DISC_GOLF_TOPICS: Record<string, string[]> = {
     'putting': ['putt', 'putting', 'putter', 'confidence', 'straddle', 'turbo'],
-    'driving': ['drive', 'driving', 'distance', 'power', 'long', 'max', 'distance'],
+    'driving': ['drive', 'driving', 'distance', 'power', 'long', 'max'],
     'forehand': ['forehand', 'sidearm', 'flick'],
     'backhand': ['backhand', 'form', 'technique', 'throw', 'throwing'],
     'approach': ['approach', 'upshot', 'shot', 'shots'],
+    'footwork': ['footwork', 'step', 'x-step', 'run-up', 'plant'],
     'grip': ['grip', 'hand', 'finger', 'hold'],
     'beginner': ['beginner', 'basic', 'basics', 'start', 'first'],
     'advanced': ['advanced', 'pro', 'professional', 'expert', 'training', 'camp'],
