@@ -4,7 +4,8 @@ import { VideoData } from './types';
 
 const API_KEY = 'AIzaSyBOkDCfUBKCuSfnHiH_RZtaRNEKXJZLh-c';
 const SEARCH_QUERY = 'disc golf lesson, clinic, tutorial, how to';
-const MAX_RESULTS = 50; // YouTube API allows max 50 results per request
+const MAX_RESULTS_PER_REQUEST = 50; // YouTube API allows max 50 per request
+const MAX_TOTAL_RESULTS = 200; // Allow up to 200 videos
 
 interface YouTubeSearchResult {
   id: {
@@ -67,71 +68,73 @@ const isShortVideo = (durationSeconds: number): boolean => {
 // Fetch videos from YouTube API
 export const fetchYouTubeVideos = async (): Promise<VideoData[]> => {
   try {
-    // Step 1: Search for videos
-    const searchResponse = await axios.get('https://www.googleapis.com/youtube/v3/search', {
-      params: {
-        key: API_KEY,
-        q: SEARCH_QUERY,
-        part: 'snippet',
-        maxResults: MAX_RESULTS,
-        type: 'video',
-        videoCategoryId: '17', // Sports category
-        videoEmbeddable: true,
-        relevanceLanguage: 'en',
-        order: 'viewCount' // Sort by most viewed
-      }
-    });
-    
-    const videoIds = searchResponse.data.items
-      .filter((item: YouTubeSearchResult) => item.id.videoId)
-      .map((item: YouTubeSearchResult) => item.id.videoId);
-    
-    if (videoIds.length === 0) {
-      throw new Error('No videos found');
+    let allVideos: VideoData[] = [];
+    let nextPageToken: string | undefined = undefined;
+    let fetched = 0;
+
+    while (fetched < MAX_TOTAL_RESULTS) {
+      const searchResponse = await axios.get('https://www.googleapis.com/youtube/v3/search', {
+        params: {
+          key: API_KEY,
+          q: SEARCH_QUERY,
+          part: 'snippet',
+          maxResults: MAX_RESULTS_PER_REQUEST,
+          type: 'video',
+          videoCategoryId: '17',
+          videoEmbeddable: true,
+          relevanceLanguage: 'en',
+          order: 'viewCount',
+          ...(nextPageToken ? { pageToken: nextPageToken } : {})
+        }
+      });
+
+      const videoIds = searchResponse.data.items
+        .filter((item: YouTubeSearchResult) => item.id.videoId)
+        .map((item: YouTubeSearchResult) => item.id.videoId);
+
+      if (videoIds.length === 0) break;
+
+      const videoDetailsResponse = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
+        params: {
+          key: API_KEY,
+          id: videoIds.join(','),
+          part: 'contentDetails,statistics'
+        }
+      });
+
+      const videos: VideoData[] = searchResponse.data.items.map((searchItem: YouTubeSearchResult) => {
+        const videoId = searchItem.id.videoId || '';
+        const videoDetails = videoDetailsResponse.data.items.find(
+          (detailItem: YouTubeVideoDetails) => detailItem.id === videoId
+        );
+        if (!videoDetails) return null;
+        const durationSeconds = parseIsoDuration(videoDetails.contentDetails.duration);
+        const viewCount = parseInt(videoDetails.statistics.viewCount || '0');
+        const likeCount = videoDetails.statistics.likeCount ? parseInt(videoDetails.statistics.likeCount) : undefined;
+        const isShort = isShortVideo(durationSeconds);
+        return {
+          id: videoId,
+          title: searchItem.snippet.title,
+          channel: searchItem.snippet.channelTitle,
+          duration: formatDurationFromSeconds(durationSeconds),
+          views: `${(viewCount / 1000).toFixed(1)}K views`,
+          durationSeconds,
+          viewCount,
+          isShort,
+          thumbnailUrl: searchItem.snippet.thumbnails.medium.url,
+          likeCount
+        };
+      }).filter(Boolean) as VideoData[];
+
+      allVideos = allVideos.concat(videos);
+      fetched = allVideos.length;
+      nextPageToken = searchResponse.data.nextPageToken;
+      if (!nextPageToken) break;
     }
-    
-    // Step 2: Get video details (duration, view count, like count)
-    const videoDetailsResponse = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
-      params: {
-        key: API_KEY,
-        id: videoIds.join(','),
-        part: 'contentDetails,statistics'
-      }
-    });
-    
-    // Step 3: Combine search results with video details
-    const videos: VideoData[] = searchResponse.data.items.map((searchItem: YouTubeSearchResult) => {
-      const videoId = searchItem.id.videoId || '';
-      const videoDetails = videoDetailsResponse.data.items.find(
-        (detailItem: YouTubeVideoDetails) => detailItem.id === videoId
-      );
-      
-      if (!videoDetails) {
-        return null;
-      }
-      
-      const durationSeconds = parseIsoDuration(videoDetails.contentDetails.duration);
-      const viewCount = parseInt(videoDetails.statistics.viewCount || '0');
-      const likeCount = videoDetails.statistics.likeCount ? parseInt(videoDetails.statistics.likeCount) : undefined;
-      const isShort = isShortVideo(durationSeconds);
-      
-      return {
-        id: videoId,
-        title: searchItem.snippet.title,
-        channel: searchItem.snippet.channelTitle,
-        duration: formatDurationFromSeconds(durationSeconds),
-        views: `${(viewCount / 1000).toFixed(1)}K views`,
-        durationSeconds,
-        viewCount,
-        isShort,
-        thumbnailUrl: searchItem.snippet.thumbnails.medium.url,
-        likeCount
-      };
-    }).filter(Boolean) as VideoData[];
-    
-    // Optionally, sort by likeCount if desired
-    // videos.sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0));
-    return videos;
+
+    // Remove duplicates by video id
+    const uniqueVideos = Array.from(new Map(allVideos.map(v => [v.id, v])).values());
+    return uniqueVideos.slice(0, MAX_TOTAL_RESULTS);
   } catch (error) {
     console.error('Error fetching YouTube videos:', error);
     throw error;
@@ -147,7 +150,7 @@ export const fetchMoreYouTubeVideos = async (pageToken: string): Promise<{ video
         key: API_KEY,
         q: SEARCH_QUERY,
         part: 'snippet',
-        maxResults: MAX_RESULTS,
+        maxResults: MAX_RESULTS_PER_REQUEST,
         type: 'video',
         videoCategoryId: '17', // Sports category
         videoEmbeddable: true,
