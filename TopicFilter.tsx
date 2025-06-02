@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { VideoData } from '../lib/types';
+import { VideoData } from './types';
 
 interface TopicFilterProps {
   videos: VideoData[];
@@ -16,7 +16,7 @@ export function TopicFilter({ videos, selectedTopics, setSelectedTopics }: Topic
     const counts: Record<string, number> = {};
     
     videos.forEach(video => {
-      if (video.topics) {
+      if (Array.isArray(video.topics)) {
         video.topics.forEach(topic => {
           counts[topic] = (counts[topic] || 0) + 1;
         });
