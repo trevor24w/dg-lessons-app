@@ -4,7 +4,7 @@ import { VideoData } from './types';
 
 const API_KEY = 'AIzaSyBOkDCfUBKCuSfnHiH_RZtaRNEKXJZLh-c';
 const SEARCH_QUERY = 'disc golf lesson, clinic, tutorial, how to';
-const MAX_RESULTS = 250; // YouTube API allows max 50 results per request
+const MAX_RESULTS = 50; // YouTube API allows max 50 results per request
 
 interface YouTubeSearchResult {
   id: {
