@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import './App.css';
-import { VideoGrid } from './components/VideoGrid';
-import { VideoData } from './lib/types';
-import { fetchYouTubeVideos } from './lib/youtubeApi';
-import { parseCSVWithTopics } from './lib/topicUtils';
+import React, { useState, useEffect } from 'react';
+// import './App.css';
+import { VideoGrid } from './VideoGrid';
+import { VideoData } from './types';
+import { fetchYouTubeVideos } from './youtubeApi';
+import { parseCSVWithTopics } from './topicUtils';
 
 function App() {
   const [videos, setVideos] = useState<VideoData[]>([]);

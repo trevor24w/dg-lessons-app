@@ -1,11 +1,12 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
-import { VideoData, FilterOptions, SortOption, SortDirection } from '../lib/types';
+import { VideoData, FilterOptions, SortOption, SortDirection } from './types';
 import { VideoCard } from './VideoCard';
 import { FilterSidebar } from './FilterSidebar';
 import { VideoModal } from './VideoModal';
-import { filterVideos } from '../lib/topicUtils';
-import { sortVideos } from '../lib/utils';
-import { fetchMoreYouTubeVideos } from '../lib/youtubeApi';
+import { filterVideos } from './topicUtils';
+import { sortVideos } from './utils';
+import { fetchMoreYouTubeVideos } from './youtubeApi';
 
 interface VideoGridProps {
   videos: VideoData[];

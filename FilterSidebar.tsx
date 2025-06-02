@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { FilterOptions, SortOption, SortDirection, VideoData } from '../lib/types';
-import { extractChannels } from '../lib/utils';
+import { FilterOptions, SortOption, SortDirection, VideoData } from './types';
+import { extractChannels } from './utils';
 import { TopicFilter } from './TopicFilter';
 
 interface FilterSidebarProps {

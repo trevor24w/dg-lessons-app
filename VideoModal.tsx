@@ -1,6 +1,6 @@
-
-import { VideoData } from '../lib/types';
-import { formatDuration, formatViews } from '../lib/utils';
+import React from 'react';
+import { VideoData } from './types';
+import { formatDuration, formatViews } from './utils';
 
 interface VideoModalProps {
   video: VideoData | null;
