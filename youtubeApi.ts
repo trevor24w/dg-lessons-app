@@ -3,9 +3,14 @@ import { VideoData } from './types';
 
 
 const API_KEY = 'AIzaSyBOkDCfUBKCuSfnHiH_RZtaRNEKXJZLh-c';
-const SEARCH_QUERY = 'disc golf lesson, clinic, tutorial, how to';
-const MAX_RESULTS_PER_REQUEST = 50; // YouTube API allows max 50 per request
-const MAX_TOTAL_RESULTS = 200; // Allow up to 200 videos
+const SEARCH_QUERIES = [
+  'disc golf lesson',
+  'disc golf clinic',
+  'disc golf tutorial',
+  'disc golf how to'
+];
+const MAX_RESULTS_PER_REQUEST = 50;
+const MAX_TOTAL_RESULTS = 200;
 
 interface YouTubeSearchResult {
   id: {
@@ -98,71 +103,66 @@ function assignTopics(title: string): string[] {
 export const fetchYouTubeVideos = async (): Promise<VideoData[]> => {
   try {
     let allVideos: VideoData[] = [];
-    let nextPageToken: string | undefined = undefined;
-    let fetched = 0;
-
-    while (fetched < MAX_TOTAL_RESULTS) {
-      const searchResponse = await axios.get('https://www.googleapis.com/youtube/v3/search', {
-        params: {
-          key: API_KEY,
-          q: SEARCH_QUERY,
-          part: 'snippet',
-          maxResults: MAX_RESULTS_PER_REQUEST,
-          type: 'video',
-          videoCategoryId: '17',
-          videoEmbeddable: true,
-          relevanceLanguage: 'en',
-          order: 'viewCount',
-          ...(nextPageToken ? { pageToken: nextPageToken } : {})
-        }
-      });
-
-      const videoIds = searchResponse.data.items
-        .filter((item: YouTubeSearchResult) => item.id.videoId)
-        .map((item: YouTubeSearchResult) => item.id.videoId);
-
-      if (videoIds.length === 0) break;
-
-      const videoDetailsResponse = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
-        params: {
-          key: API_KEY,
-          id: videoIds.join(','),
-          part: 'contentDetails,statistics'
-        }
-      });
-
-      const videos: VideoData[] = searchResponse.data.items.map((searchItem: YouTubeSearchResult) => {
-        const videoId = searchItem.id.videoId || '';
-        const videoDetails = videoDetailsResponse.data.items.find(
-          (detailItem: YouTubeVideoDetails) => detailItem.id === videoId
-        );
-        if (!videoDetails) return null;
-        const durationSeconds = parseIsoDuration(videoDetails.contentDetails.duration);
-        const viewCount = parseInt(videoDetails.statistics.viewCount || '0');
-        const likeCount = videoDetails.statistics.likeCount ? parseInt(videoDetails.statistics.likeCount) : undefined;
-        const isShort = isShortVideo(durationSeconds);
-        const topics = assignTopics(searchItem.snippet.title);
-        return {
-          id: videoId,
-          title: searchItem.snippet.title,
-          channel: searchItem.snippet.channelTitle,
-          duration: formatDurationFromSeconds(durationSeconds),
-          views: `${(viewCount / 1000).toFixed(1)}K views`,
-          durationSeconds,
-          viewCount,
-          isShort,
-          thumbnailUrl: searchItem.snippet.thumbnails.medium.url,
-          likeCount,
-          topics
-        };
-      }).filter(Boolean) as VideoData[];
-
-      allVideos = allVideos.concat(videos);
-      fetched = allVideos.length;
-      nextPageToken = searchResponse.data.nextPageToken;
-      if (!nextPageToken) break;
+    for (const query of SEARCH_QUERIES) {
+      let nextPageToken: string | undefined = undefined;
+      let fetched = 0;
+      while (fetched < MAX_TOTAL_RESULTS / SEARCH_QUERIES.length) {
+        const searchResponse = await axios.get('https://www.googleapis.com/youtube/v3/search', {
+          params: {
+            key: API_KEY,
+            q: query,
+            part: 'snippet',
+            maxResults: MAX_RESULTS_PER_REQUEST,
+            type: 'video',
+            videoCategoryId: '17',
+            videoEmbeddable: true,
+            relevanceLanguage: 'en',
+            order: 'viewCount',
+            ...(nextPageToken ? { pageToken: nextPageToken } : {})
+          }
+        });
+        const videoIds = searchResponse.data.items
+          .filter((item: YouTubeSearchResult) => item.id.videoId)
+          .map((item: YouTubeSearchResult) => item.id.videoId);
+        if (videoIds.length === 0) break;
+        const videoDetailsResponse = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
+          params: {
+            key: API_KEY,
+            id: videoIds.join(','),
+            part: 'contentDetails,statistics'
+          }
+        });
+        const videos: VideoData[] = searchResponse.data.items.map((searchItem: YouTubeSearchResult) => {
+          const videoId = searchItem.id.videoId || '';
+          const videoDetails = videoDetailsResponse.data.items.find(
+            (detailItem: YouTubeVideoDetails) => detailItem.id === videoId
+          );
+          if (!videoDetails) return null;
+          const durationSeconds = parseIsoDuration(videoDetails.contentDetails.duration);
+          const viewCount = parseInt(videoDetails.statistics.viewCount || '0');
+          const likeCount = videoDetails.statistics.likeCount ? parseInt(videoDetails.statistics.likeCount) : undefined;
+          const isShort = isShortVideo(durationSeconds);
+          const topics = assignTopics(searchItem.snippet.title);
+          return {
+            id: videoId,
+            title: searchItem.snippet.title,
+            channel: searchItem.snippet.channelTitle,
+            duration: formatDurationFromSeconds(durationSeconds),
+            views: `${(viewCount / 1000).toFixed(1)}K views`,
+            durationSeconds,
+            viewCount,
+            isShort,
+            thumbnailUrl: searchItem.snippet.thumbnails.medium.url,
+            likeCount,
+            topics
+          };
+        }).filter(Boolean) as VideoData[];
+        allVideos = allVideos.concat(videos);
+        fetched += videos.length;
+        nextPageToken = searchResponse.data.nextPageToken;
+        if (!nextPageToken) break;
+      }
     }
-
     // Remove duplicates by video id
     const uniqueVideos = Array.from(new Map(allVideos.map(v => [v.id, v])).values());
     return uniqueVideos.slice(0, MAX_TOTAL_RESULTS);
@@ -179,15 +179,15 @@ export const fetchMoreYouTubeVideos = async (pageToken: string): Promise<{ video
     const searchResponse = await axios.get('https://www.googleapis.com/youtube/v3/search', {
       params: {
         key: API_KEY,
-        q: SEARCH_QUERY,
+        q: SEARCH_QUERIES[0],
         part: 'snippet',
         maxResults: MAX_RESULTS_PER_REQUEST,
         type: 'video',
-        videoCategoryId: '17', // Sports category
+        videoCategoryId: '17',
         videoEmbeddable: true,
         relevanceLanguage: 'en',
         pageToken,
-        order: 'viewCount' // Sort by most viewed
+        order: 'viewCount'
       }
     });
     
