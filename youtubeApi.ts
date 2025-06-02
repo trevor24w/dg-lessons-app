@@ -3,8 +3,8 @@ import { VideoData } from './types';
 
 
 const API_KEY = 'AIzaSyBOkDCfUBKCuSfnHiH_RZtaRNEKXJZLh-c';
-const SEARCH_QUERY = 'disc+golf+clinic';
-const MAX_RESULTS = 50; // YouTube API allows max 50 results per request
+const SEARCH_QUERY = 'disc golf lesson, clinic, tutorial, how to';
+const MAX_RESULTS = 250; // YouTube API allows max 50 results per request
 
 interface YouTubeSearchResult {
   id: {
@@ -30,6 +30,7 @@ interface YouTubeVideoDetails {
   };
   statistics: {
     viewCount: string;
+    likeCount?: string;
   };
 }
 
@@ -76,7 +77,8 @@ export const fetchYouTubeVideos = async (): Promise<VideoData[]> => {
         type: 'video',
         videoCategoryId: '17', // Sports category
         videoEmbeddable: true,
-        relevanceLanguage: 'en'
+        relevanceLanguage: 'en',
+        order: 'viewCount' // Sort by most viewed
       }
     });
     
@@ -88,7 +90,7 @@ export const fetchYouTubeVideos = async (): Promise<VideoData[]> => {
       throw new Error('No videos found');
     }
     
-    // Step 2: Get video details (duration, view count)
+    // Step 2: Get video details (duration, view count, like count)
     const videoDetailsResponse = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
       params: {
         key: API_KEY,
@@ -110,6 +112,7 @@ export const fetchYouTubeVideos = async (): Promise<VideoData[]> => {
       
       const durationSeconds = parseIsoDuration(videoDetails.contentDetails.duration);
       const viewCount = parseInt(videoDetails.statistics.viewCount || '0');
+      const likeCount = videoDetails.statistics.likeCount ? parseInt(videoDetails.statistics.likeCount) : undefined;
       const isShort = isShortVideo(durationSeconds);
       
       return {
@@ -121,10 +124,13 @@ export const fetchYouTubeVideos = async (): Promise<VideoData[]> => {
         durationSeconds,
         viewCount,
         isShort,
-        thumbnailUrl: searchItem.snippet.thumbnails.medium.url
+        thumbnailUrl: searchItem.snippet.thumbnails.medium.url,
+        likeCount
       };
     }).filter(Boolean) as VideoData[];
     
+    // Optionally, sort by likeCount if desired
+    // videos.sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0));
     return videos;
   } catch (error) {
     console.error('Error fetching YouTube videos:', error);
@@ -146,7 +152,8 @@ export const fetchMoreYouTubeVideos = async (pageToken: string): Promise<{ video
         videoCategoryId: '17', // Sports category
         videoEmbeddable: true,
         relevanceLanguage: 'en',
-        pageToken
+        pageToken,
+        order: 'viewCount' // Sort by most viewed
       }
     });
     
@@ -158,7 +165,7 @@ export const fetchMoreYouTubeVideos = async (pageToken: string): Promise<{ video
       return { videos: [], nextPageToken: null };
     }
     
-    // Step 2: Get video details (duration, view count)
+    // Step 2: Get video details (duration, view count, like count)
     const videoDetailsResponse = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
       params: {
         key: API_KEY,
@@ -180,6 +187,7 @@ export const fetchMoreYouTubeVideos = async (pageToken: string): Promise<{ video
       
       const durationSeconds = parseIsoDuration(videoDetails.contentDetails.duration);
       const viewCount = parseInt(videoDetails.statistics.viewCount || '0');
+      const likeCount = videoDetails.statistics.likeCount ? parseInt(videoDetails.statistics.likeCount) : undefined;
       const isShort = isShortVideo(durationSeconds);
       
       return {
@@ -191,10 +199,13 @@ export const fetchMoreYouTubeVideos = async (pageToken: string): Promise<{ video
         durationSeconds,
         viewCount,
         isShort,
-        thumbnailUrl: searchItem.snippet.thumbnails.medium.url
+        thumbnailUrl: searchItem.snippet.thumbnails.medium.url,
+        likeCount
       };
     }).filter(Boolean) as VideoData[];
     
+    // Optionally, sort by likeCount if desired
+    // videos.sort((a, b) => (b.likeCount || 0) - (a.likeCount || 0));
     return { 
       videos, 
       nextPageToken: searchResponse.data.nextPageToken || null 

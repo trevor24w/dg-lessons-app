@@ -9,6 +9,7 @@ export interface VideoData {
   isShort: boolean;
   thumbnailUrl?: string;
   topics?: string[]; // Added topics field
+  likeCount?: number; // Optional like count from YouTube API
 }
 
 export type SortOption = 'views' | 'duration' | 'title' | 'channel';
