@@ -1,80 +1,219 @@
 body {
-  background: #181818;
-  color: #f5f5f5;
+  background: #f6f7fb;
+  color: #222;
   font-family: 'Inter', Arial, sans-serif;
+  margin: 0;
 }
 
-.app-container {
-  max-width: 1100px;
-  margin: 40px auto;
-  padding: 24px;
-  background: #23272f;
-  border-radius: 16px;
-  box-shadow: 0 4px 32px #000a  ;
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f6f7fb;
+}
+
+.sidebar {
+  width: 270px;
+  background: #fff;
+  border-right: 1px solid #e5e7eb;
+  padding: 32px 24px 24px 24px;
+  box-sizing: border-box;
+  min-height: 100vh;
+}
+
+.sidebar-section {
+  margin-bottom: 32px;
+}
+
+.sidebar-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #222;
+  font-size: 1rem;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: #f1f3f7;
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 1rem;
+  flex: 1;
+  color: #222;
+}
+
+.search-icon {
+  font-size: 1.1rem;
+  color: #888;
+  margin-left: 4px;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checkbox-label {
+  font-size: 0.98rem;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+  accent-color: #2563eb;
+  width: 16px;
+  height: 16px;
+}
+
+.main-content {
+  flex: 1;
+  padding: 40px 40px 40px 40px;
+  min-width: 0;
 }
 
 h1 {
-  text-align: center;
-  font-size: 2.2rem;
-  font-weight: 700;
+  font-size: 2.3rem;
+  font-weight: 800;
+  margin: 0 0 8px 0;
+  color: #1a202c;
+}
+
+.subtitle {
+  color: #6b7280;
+  font-size: 1.1rem;
   margin-bottom: 32px;
+}
+
+.videos-found-label {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-bottom: 18px;
+  color: #222;
+}
+
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 28px;
+}
+
+.video-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px #0001;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s, transform 0.2s;
+  cursor: pointer;
+  border: 1px solid #e5e7eb;
+}
+
+.video-card:hover {
+  box-shadow: 0 6px 24px #0002;
+  transform: translateY(-2px) scale(1.02);
+}
+
+.video-thumb-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.video-duration-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(34, 34, 34, 0.85);
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
   letter-spacing: 0.02em;
 }
 
-.video-table-container {
-  overflow-x: auto;
+.video-info {
+  padding: 14px 14px 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.video-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #23272f;
-  color: #f5f5f5;
-  font-size: 1rem;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 12px #0004;
-}
-
-.video-table th, .video-table td {
-  padding: 12px 16px;
-  text-align: left;
-}
-
-.video-table th {
-  background: #23272f;
+.video-title {
+  font-size: 1.08rem;
   font-weight: 600;
-  user-select: none;
-  transition: background 0.2s;
+  color: #1a202c;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.video-table th.sorted {
-  color: #4fd1c5;
+.video-channel {
+  color: #2563eb;
+  font-size: 0.98rem;
+  font-weight: 500;
 }
 
-.video-table th:hover {
-  background: #2d3748;
+.video-views {
+  color: #6b7280;
+  font-size: 0.95rem;
 }
 
-.video-table tr {
-  transition: background 0.2s;
+.no-videos {
+  color: #888;
+  text-align: center;
+  margin: 40px 0;
+  font-size: 1.1rem;
 }
 
-.video-table tbody tr:hover {
-  background: #2d3748;
-}
-
-.video-table td {
-  border-top: 1px solid #222;
-}
-
-@media (max-width: 700px) {
-  .app-container {
-    padding: 8px;
+@media (max-width: 900px) {
+  .app-layout {
+    flex-direction: column;
   }
-  .video-table th, .video-table td {
-    padding: 8px 6px;
-    font-size: 0.95rem;
+  .sidebar {
+    width: 100%;
+    min-height: unset;
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 18px 10px 10px 10px;
+  }
+  .main-content {
+    padding: 24px 8px 8px 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  .video-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .sidebar-section {
+    margin-bottom: 18px;
   }
   h1 {
     font-size: 1.3rem;
