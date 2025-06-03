@@ -6,7 +6,6 @@ import { FilterSidebar } from './FilterSidebar';
 import { VideoModal } from './VideoModal';
 import { filterVideos } from './topicUtils';
 import { sortVideos } from './utils';
-import { fetchMoreYouTubeVideos } from './youtubeApi';
 
 interface VideoGridProps {
   videos: VideoData[];
@@ -25,8 +24,6 @@ export function VideoGrid({ videos }: VideoGridProps) {
   });
   const [sortBy, setSortBy] = useState<SortOption>('views');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
-  const [loadingMore, setLoadingMore] = useState<boolean>(false);
-  const [nextPageToken, setNextPageToken] = useState<string | null>(null);
   const [allVideos, setAllVideos] = useState<VideoData[]>(videos);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
@@ -51,20 +48,6 @@ export function VideoGrid({ videos }: VideoGridProps) {
 
   const closeModal = () => {
     setSelectedVideo(null);
-  };
-
-  const loadMoreVideos = async () => {
-    if (!nextPageToken || loadingMore) return;
-    try {
-      setLoadingMore(true);
-      const { videos: moreVideos, nextPageToken: newToken } = await fetchMoreYouTubeVideos(nextPageToken);
-      setAllVideos(prev => [...prev, ...moreVideos]);
-      setNextPageToken(newToken);
-    } catch (error) {
-      console.error('Error loading more videos:', error);
-    } finally {
-      setLoadingMore(false);
-    }
   };
 
   // Pagination logic
@@ -167,26 +150,6 @@ export function VideoGrid({ videos }: VideoGridProps) {
               className="px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md disabled:opacity-50"
             >
               Next Page
-            </button>
-          </div>
-        )}
-
-        {/* Load More from API if available */}
-        {nextPageToken && filteredVideos.length > 0 && (
-          <div className="mt-8 text-center">
-            <button
-              onClick={loadMoreVideos}
-              disabled={loadingMore}
-              className="px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors disabled:bg-blue-300 disabled:cursor-not-allowed"
-            >
-              {loadingMore ? (
-                <span className="flex items-center justify-center gap-2">
-                  <span className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></span>
-                  Loading More...
-                </span>
-              ) : (
-                'Load More Videos'
-              )}
             </button>
           </div>
         )}
