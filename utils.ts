@@ -82,39 +82,6 @@ export function generateThumbnailUrl(videoId: string): string {
   return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
 }
 
-// Filter videos based on filter options
-export function filterVideos(videos: VideoData[], filters: any) {
-  return videos.filter(video => {
-    // Search filter
-    if (filters.search && !video.title.toLowerCase().includes(filters.search.toLowerCase()) && 
-        !video.channel.toLowerCase().includes(filters.search.toLowerCase())) {
-      return false;
-    }
-    
-    // Channel filter
-    if (filters.channel.length > 0 && !filters.channel.includes(video.channel)) {
-      return false;
-    }
-    
-    // Short videos filter
-    if (filters.isShort !== null) {
-      if (filters.isShort && !video.isShort) return false;
-      if (!filters.isShort && video.isShort) return false;
-    }
-    
-    // Duration filters
-    if (filters.minDuration !== null && video.durationSeconds < filters.minDuration) {
-      return false;
-    }
-    
-    if (filters.maxDuration !== null && video.durationSeconds > filters.maxDuration) {
-      return false;
-    }
-    
-    return true;
-  });
-}
-
 // Sort videos based on sort option and direction
 export function sortVideos(videos: VideoData[], sortBy: string, sortDirection: string) {
   return [...videos].sort((a, b) => {

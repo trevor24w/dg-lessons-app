@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { VideoData, FilterOptions, SortOption, SortDirection } from './types';
 import { VideoCard } from './VideoCard';
 import { FilterSidebar } from './FilterSidebar';
@@ -22,27 +22,29 @@ export function VideoGrid({ videos }: VideoGridProps) {
     isShort: null,
     minDuration: null,
     maxDuration: null,
-    topics: [] // Initialize empty topics filter
+    topics: []
   });
   const [sortBy, setSortBy] = useState<SortOption>('views');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
-  const [filteredVideos, setFilteredVideos] = useState<VideoData[]>(videos);
   const [loadingMore, setLoadingMore] = useState<boolean>(false);
   const [nextPageToken, setNextPageToken] = useState<string | null>(null);
   const [allVideos, setAllVideos] = useState<VideoData[]>(videos);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
   useEffect(() => {
-    // Apply filters and sorting
+    setAllVideos(videos);
+  }, [videos]);
+
+  // Memoize filtered and sorted videos
+  const filteredVideos = useMemo(() => {
     let result = filterVideos(allVideos, filters);
     result = sortVideos(result, sortBy, sortDirection);
-    setFilteredVideos(result);
-    setCurrentPage(1); // Reset to first page when filters/sort change
+    return result;
   }, [allVideos, filters, sortBy, sortDirection]);
 
   useEffect(() => {
-    setAllVideos(videos);
-  }, [videos]);
+    setCurrentPage(1); // Reset to first page when filters/sort change
+  }, [filters, sortBy, sortDirection, allVideos]);
 
   const handleVideoClick = (video: VideoData) => {
     setSelectedVideo(video);

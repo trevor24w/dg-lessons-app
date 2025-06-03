@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { VideoData } from './types';
+import { assignTopics } from './topicUtils';
 
 
 const API_KEY = 'AIzaSyBOkDCfUBKCuSfnHiH_RZtaRNEKXJZLh-c';
@@ -69,35 +70,6 @@ const formatDurationFromSeconds = (seconds: number): string => {
 const isShortVideo = (durationSeconds: number): boolean => {
   return durationSeconds < 60;
 };
-
-function assignTopics(title: string): string[] {
-  const titleLower = title.toLowerCase();
-  const assignedTopics: string[] = [];
-  const DISC_GOLF_TOPICS: Record<string, string[]> = {
-    'putting': ['putt', 'putting', 'putter', 'confidence', 'straddle', 'turbo'],
-    'driving': ['drive', 'driving', 'distance', 'power', 'long', 'max'],
-    'forehand': ['forehand', 'sidearm', 'flick'],
-    'backhand': ['backhand', 'form', 'technique', 'throw', 'throwing'],
-    'approach': ['approach', 'upshot', 'shot', 'shots'],
-    'footwork': ['footwork', 'step', 'x-step', 'run-up', 'plant'],
-    'grip': ['grip', 'hand', 'finger', 'hold'],
-    'beginner': ['beginner', 'basic', 'basics', 'start', 'first'],
-    'advanced': ['advanced', 'pro', 'professional', 'expert', 'training', 'camp'],
-    'angle': ['angle', 'angles', 'anhyzer', 'hyzer', 'flat', 'control'],
-    'specialty': ['roller', 'overhead', 'thumber', 'tomahawk', '360'],
-    'mindset': ['mindset', 'mental', 'confidence', 'strategy', 'game'],
-    'equipment': ['disc', 'discs', 'equipment', 'bag', 'gear', 'choosing']
-  };
-  for (const [topic, keywords] of Object.entries(DISC_GOLF_TOPICS)) {
-    if (keywords.some(keyword => titleLower.includes(keyword))) {
-      assignedTopics.push(topic);
-    }
-  }
-  if (assignedTopics.length === 0) {
-    assignedTopics.push('general');
-  }
-  return assignedTopics;
-}
 
 // Fetch videos from YouTube API
 export const fetchYouTubeVideos = async (): Promise<VideoData[]> => {

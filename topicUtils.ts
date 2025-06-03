@@ -1,12 +1,31 @@
 import { VideoData, FilterOptions } from './types';
-import { filterVideos as originalFilterVideos } from './utils';
 
-// Enhanced filter function that includes topic filtering
+// Unified filter function that includes all filters and topic filtering
 export function filterVideos(videos: VideoData[], filters: FilterOptions) {
-  return originalFilterVideos(videos, filters).filter(video => {
+  return videos.filter(video => {
+    // Search filter
+    if (filters.search && !video.title.toLowerCase().includes(filters.search.toLowerCase()) && 
+        !video.channel.toLowerCase().includes(filters.search.toLowerCase())) {
+      return false;
+    }
+    // Channel filter
+    if (filters.channel.length > 0 && !filters.channel.includes(video.channel)) {
+      return false;
+    }
+    // Short videos filter
+    if (filters.isShort !== null) {
+      if (filters.isShort && !video.isShort) return false;
+      if (!filters.isShort && video.isShort) return false;
+    }
+    // Duration filters
+    if (filters.minDuration !== null && video.durationSeconds < filters.minDuration) {
+      return false;
+    }
+    if (filters.maxDuration !== null && video.durationSeconds > filters.maxDuration) {
+      return false;
+    }
     // Topic filter
     if (filters.topics && filters.topics.length > 0) {
-      // Defensive: ensure video.topics is always an array
       if (!Array.isArray(video.topics) || !video.topics.some(topic => filters.topics.includes(topic))) {
         return false;
       }
@@ -63,7 +82,7 @@ export function parseCSVWithTopics(csvData: string): VideoData[] {
 }
 
 // Function to assign topics based on keywords in title
-function assignTopics(title: string): string[] {
+export function assignTopics(title: string): string[] {
   const titleLower = title.toLowerCase();
   const assignedTopics: string[] = [];
   
