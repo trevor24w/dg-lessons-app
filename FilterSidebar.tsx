@@ -1,25 +1,17 @@
 import React, { useState } from 'react';
-import { FilterOptions, SortOption, SortDirection, VideoData } from './types';
+import { FilterOptions, VideoData } from './types';
 import { extractChannels } from './utils';
 
 interface FilterSidebarProps {
   videos: VideoData[];
   filters: FilterOptions;
   setFilters: React.Dispatch<React.SetStateAction<FilterOptions>>;
-  sortBy: SortOption;
-  setSortBy: React.Dispatch<React.SetStateAction<SortOption>>;
-  sortDirection: SortDirection;
-  setSortDirection: React.Dispatch<React.SetStateAction<SortDirection>>;
 }
 
 export function FilterSidebar({
   videos,
   filters,
-  setFilters,
-  sortBy,
-  setSortBy,
-  sortDirection,
-  setSortDirection
+  setFilters
 }: FilterSidebarProps) {
   const channels = extractChannels(videos);
   const [searchInput, setSearchInput] = useState(filters.search);
@@ -36,14 +28,6 @@ export function FilterSidebar({
         : [...prev.channel, channel];
       return { ...prev, channel: updatedChannels };
     });
-  };
-
-  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSortBy(e.target.value as SortOption);
-  };
-
-  const toggleSortDirection = () => {
-    setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc');
   };
 
   const handleShortToggle = (value: boolean | null) => {
@@ -64,8 +48,7 @@ export function FilterSidebar({
       channel: [],
       isShort: null,
       minDuration: null,
-      maxDuration: null,
-      topics: []
+      maxDuration: null
     });
     setSearchInput('');
   };
@@ -92,30 +75,6 @@ export function FilterSidebar({
           </button>
         </div>
       </form>
-      
-      {/* Sort Options */}
-      <div className="mb-6">
-        <h3 className="font-semibold mb-2">Sort By</h3>
-        <div className="flex items-center">
-          <select 
-            value={sortBy} 
-            onChange={handleSortChange}
-            className="p-2 border rounded-md mr-2 flex-grow dark:bg-gray-800 dark:border-gray-700"
-          >
-            <option value="views">Views</option>
-            <option value="duration">Duration</option>
-            <option value="title">Title</option>
-            <option value="channel">Channel</option>
-          </select>
-          <button 
-            onClick={toggleSortDirection}
-            className="p-2 border rounded-md dark:border-gray-700"
-            title={sortDirection === 'desc' ? 'Descending' : 'Ascending'}
-          >
-            {sortDirection === 'desc' ? '↓' : '↑'}
-          </button>
-        </div>
-      </div>
       
       {/* Video Type */}
       <div className="mb-6">

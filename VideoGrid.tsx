@@ -21,8 +21,7 @@ export function VideoGrid({ videos }: VideoGridProps) {
     channel: [],
     isShort: null,
     minDuration: null,
-    maxDuration: null,
-    topics: []
+    maxDuration: null
   });
   const [sortBy, setSortBy] = useState<SortOption>('views');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
@@ -89,18 +88,36 @@ export function VideoGrid({ videos }: VideoGridProps) {
           videos={allVideos}
           filters={filters}
           setFilters={setFilters}
-          sortBy={sortBy}
-          setSortBy={setSortBy}
-          sortDirection={sortDirection}
-          setSortDirection={setSortDirection}
         />
       </div>
       
       <div className="flex-1">
-        <div className="mb-4">
+        {/* Sort By Options at the top */}
+        <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <h2 className="text-xl font-bold">
             {filteredVideos.length} {filteredVideos.length === 1 ? 'Video' : 'Videos'} Found
           </h2>
+          <div className="flex items-center gap-2">
+            <label htmlFor="sortBy" className="font-semibold">Sort By</label>
+            <select
+              id="sortBy"
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value as SortOption)}
+              className="p-2 border rounded-md flex-grow dark:bg-gray-800 dark:border-gray-700"
+            >
+              <option value="views">Views</option>
+              <option value="duration">Duration</option>
+              <option value="title">Title</option>
+              <option value="channel">Channel</option>
+            </select>
+            <button
+              onClick={() => setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc')}
+              className="p-2 border rounded-md dark:border-gray-700"
+              title={sortDirection === 'desc' ? 'Descending' : 'Ascending'}
+            >
+              {sortDirection === 'desc' ? '↓' : '↑'}
+            </button>
+          </div>
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -122,8 +139,7 @@ export function VideoGrid({ videos }: VideoGridProps) {
                 channel: [],
                 isShort: null,
                 minDuration: null,
-                maxDuration: null,
-                topics: []
+                maxDuration: null
               })}
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
             >
