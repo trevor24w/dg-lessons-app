@@ -3,7 +3,7 @@ import { VideoData } from './types';
 import { assignTopics } from './topicUtils';
 
 
-const API_KEY = 'AIzaSyBOkDCfUBKCuSfnHiH_RZtaRNEKXJZLh-c';
+const API_KEY = 'AIzaSyBG_NxQ-tYp75_bTXZZLLNLEwp6R2RcZhE';
 const SEARCH_QUERIES = [
   'disc golf lesson',
   'disc golf clinic',
