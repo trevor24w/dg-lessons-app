@@ -63,26 +63,22 @@ export function TopicFilter({ videos, selectedTopics, setSelectedTopics }: Topic
           </button>
         )}
       </div>
-      
-      <div className="flex flex-wrap gap-2">
+      <div className="max-h-60 overflow-y-auto flex flex-col gap-1">
         {displayedTopics.map(topic => (
-          <button
-            key={topic}
-            onClick={() => handleTopicToggle(topic)}
-            className={`px-3 py-1 rounded-full text-sm capitalize ${
-              selectedTopics.includes(topic)
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 dark:bg-gray-700'
-            }`}
-          >
-            {topic} ({topicCounts[topic]})
-          </button>
+          <label key={topic} className="flex items-center gap-2 capitalize cursor-pointer">
+            <input
+              type="checkbox"
+              checked={selectedTopics.includes(topic)}
+              onChange={() => handleTopicToggle(topic)}
+              className="form-checkbox h-4 w-4 text-blue-600"
+            />
+            <span>{topic} <span className="text-xs text-gray-500">({topicCounts[topic]})</span></span>
+          </label>
         ))}
-        
         {sortedTopics.length > 6 && (
           <button
             onClick={() => setExpanded(!expanded)}
-            className="px-3 py-1 rounded-full text-sm bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
+            className="mt-2 px-3 py-1 rounded-full text-sm bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
           >
             {expanded ? 'Show Less' : `+${sortedTopics.length - 6} More`}
           </button>
