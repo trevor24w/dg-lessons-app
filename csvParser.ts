@@ -1,6 +1,5 @@
-
-import { VideoData } from '../lib/types';
-import { parseDuration, parseViews, generateVideoId, generateThumbnailUrl } from '../lib/utils';
+import { VideoData } from './types';
+import { parseDuration, parseViews, generateVideoId, generateThumbnailUrl } from './utils';
 
 // Function to parse CSV data into VideoData array
 export function parseCSVData(csvData: string): VideoData[] {
