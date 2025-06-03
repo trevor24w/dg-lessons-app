@@ -26,7 +26,8 @@ export function filterVideos(videos: VideoData[], filters: FilterOptions) {
     }
     // Topic filter
     if (filters.topics && filters.topics.length > 0) {
-      if (!Array.isArray(video.topics) || !video.topics.some(topic => filters.topics.includes(topic))) {
+      const videoTopics = Array.isArray(video.topics) ? video.topics : [];
+      if (!videoTopics.some(topic => filters.topics.includes(topic))) {
         return false;
       }
     }
