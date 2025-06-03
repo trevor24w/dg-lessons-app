@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 // import './App.css';
 import { VideoGrid } from './VideoGrid';
 import { VideoData } from './types';
-import { fetchYouTubeVideos } from './youtubeApi';
-import { parseCSVWithTopics } from './topicUtils';
+import { parseCSVData } from './csvParser';
 
 function App() {
   const [videos, setVideos] = useState<VideoData[]>([]);
@@ -14,24 +13,10 @@ function App() {
   const loadVideos = async () => {
     try {
       setLoading(true);
-      
-      // First try to load the expanded dataset with topics
-      try {
-        const response = await fetch('/data/combined_video_dataset.csv');
-        const csvData = await response.text();
-        
-        // Parse CSV data with topics into our VideoData format
-        const parsedVideos = parseCSVWithTopics(csvData);
-        setVideos(parsedVideos);
-        setError(null);
-        return;
-      } catch (csvErr) {
-        console.warn('Could not load combined dataset, falling back to YouTube API:', csvErr);
-      }
-      
-      // Fallback to YouTube API if CSV loading fails
-      const fetchedVideos = await fetchYouTubeVideos();
-      setVideos(fetchedVideos);
+      const response = await fetch('/YOUTUBE_SEARCH_RESULTS__224055434.csv');
+      const csvData = await response.text();
+      const parsedVideos = parseCSVData(csvData);
+      setVideos(parsedVideos);
       setError(null);
     } catch (err) {
       console.error('Error loading video data:', err);
@@ -44,8 +29,7 @@ function App() {
   const handleRefresh = async () => {
     try {
       setRefreshing(true);
-      const fetchedVideos = await fetchYouTubeVideos();
-      setVideos(fetchedVideos);
+      await loadVideos();
       setError(null);
     } catch (err) {
       console.error('Error refreshing video data:', err);
@@ -67,7 +51,7 @@ function App() {
             <div>
               <h1 className="text-3xl font-bold">Disc Golf Clinics & Lessons</h1>
               <p className="text-gray-600 dark:text-gray-400 mt-2">
-                Discover the best disc golf tutorials on YouTube
+                Discover the best disc golf tutorials
               </p>
             </div>
             <button
@@ -111,7 +95,7 @@ function App() {
       <footer className="bg-white dark:bg-gray-800 shadow-inner mt-8">
         <div className="container mx-auto px-4 py-6">
           <p className="text-center text-gray-600 dark:text-gray-400">
-            Disc Golf Clinics & Lessons Finder - Powered by YouTube API
+            Disc Golf Clinics & Lessons Finder
           </p>
         </div>
       </footer>
