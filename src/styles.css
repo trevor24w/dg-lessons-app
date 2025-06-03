@@ -1,0 +1,82 @@
+body {
+  background: #181818;
+  color: #f5f5f5;
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+.app-container {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 24px;
+  background: #23272f;
+  border-radius: 16px;
+  box-shadow: 0 4px 32px #000a  ;
+}
+
+h1 {
+  text-align: center;
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 32px;
+  letter-spacing: 0.02em;
+}
+
+.video-table-container {
+  overflow-x: auto;
+}
+
+.video-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #23272f;
+  color: #f5f5f5;
+  font-size: 1rem;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px #0004;
+}
+
+.video-table th, .video-table td {
+  padding: 12px 16px;
+  text-align: left;
+}
+
+.video-table th {
+  background: #23272f;
+  font-weight: 600;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.video-table th.sorted {
+  color: #4fd1c5;
+}
+
+.video-table th:hover {
+  background: #2d3748;
+}
+
+.video-table tr {
+  transition: background 0.2s;
+}
+
+.video-table tbody tr:hover {
+  background: #2d3748;
+}
+
+.video-table td {
+  border-top: 1px solid #222;
+}
+
+@media (max-width: 700px) {
+  .app-container {
+    padding: 8px;
+  }
+  .video-table th, .video-table td {
+    padding: 8px 6px;
+    font-size: 0.95rem;
+  }
+  h1 {
+    font-size: 1.3rem;
+  }
+} 
