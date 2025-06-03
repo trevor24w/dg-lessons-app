@@ -1,22 +1,6 @@
 import { VideoData, FilterOptions } from './types';
 
-// Define topic keywords globally for reuse
-const DISC_GOLF_TOPICS: Record<string, string[]> = {
-  'putting': ['putt', 'putting', 'putter', 'confidence', 'straddle', 'turbo'],
-  'driving': ['drive', 'driving', 'distance', 'power', 'long', 'max', 'distance'],
-  'forehand': ['forehand', 'sidearm', 'flick'],
-  'backhand': ['backhand', 'form', 'technique', 'throw', 'throwing'],
-  'approach': ['approach', 'upshot', 'shot', 'shots'],
-  'grip': ['grip', 'hand', 'finger', 'hold'],
-  'beginner': ['beginner', 'basic', 'basics', 'start', 'first'],
-  'advanced': ['advanced', 'pro', 'professional', 'expert', 'training', 'camp'],
-  'angle': ['angle', 'angles', 'anhyzer', 'hyzer', 'flat', 'control'],
-  'specialty': ['roller', 'overhead', 'thumber', 'tomahawk', '360'],
-  'mindset': ['mindset', 'mental', 'confidence', 'strategy', 'game'],
-  'equipment': ['disc', 'discs', 'equipment', 'bag', 'gear', 'choosing']
-};
-
-// Unified filter function that includes all filters and topic filtering
+// Unified filter function that includes all filters (no topic filtering)
 export function filterVideos(videos: VideoData[], filters: FilterOptions) {
   return videos.filter(video => {
     // Search filter
@@ -39,15 +23,6 @@ export function filterVideos(videos: VideoData[], filters: FilterOptions) {
     }
     if (filters.maxDuration !== null && video.durationSeconds > filters.maxDuration) {
       return false;
-    }
-    // Topic filter: check title for keywords
-    if (filters.topics && filters.topics.length > 0) {
-      const titleLower = video.title.toLowerCase();
-      const matches = filters.topics.some(topic => {
-        const keywords = DISC_GOLF_TOPICS[topic] || [];
-        return keywords.some(keyword => titleLower.includes(keyword));
-      });
-      if (!matches) return false;
     }
     return true;
   });

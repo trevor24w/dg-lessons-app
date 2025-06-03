@@ -8,7 +8,6 @@ export interface VideoData {
   durationSeconds: number; // Numeric representation for sorting
   isShort: boolean;
   thumbnailUrl?: string;
-  topics?: string[]; // Added topics field
   likeCount?: number; // Optional like count from YouTube API
 }
 
@@ -21,5 +20,4 @@ export interface FilterOptions {
   isShort: boolean | null;
   minDuration: number | null;
   maxDuration: number | null;
-  topics: string[]; // Added topics filter
 }

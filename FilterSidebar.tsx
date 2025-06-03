@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { FilterOptions, SortOption, SortDirection, VideoData } from './types';
 import { extractChannels } from './utils';
-import { TopicFilter } from './TopicFilter';
 
 interface FilterSidebarProps {
   videos: VideoData[];
@@ -93,13 +92,6 @@ export function FilterSidebar({
           </button>
         </div>
       </form>
-      
-      {/* Topic Filter */}
-      <TopicFilter 
-        videos={videos}
-        selectedTopics={filters.topics}
-        setSelectedTopics={(newTopics) => setFilters(prev => ({ ...prev, topics: newTopics as string[] }))}
-      />
       
       {/* Sort Options */}
       <div className="mb-6">
