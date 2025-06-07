@@ -4,7 +4,7 @@ const fetch = require('node-fetch');
 const Papa = require('papaparse');
 
 const API_KEY = process.env.YOUTUBE_API_KEY;
-const INPUT_CSV = 'youtube_links.csv';
+const INPUT_CSV = 'public/YOUTUBE_SEARCH_RESULTS__224055434.csv';
 const OUTPUT_CSV = 'public/YOUTUBE_VIDEOS_CACHE.csv';
 
 function extractVideoId(url) {
